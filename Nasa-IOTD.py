@@ -48,6 +48,8 @@ class NasaIOTDApp:
         self.window.configure(background='black')
         center(self.window)
 
+        self.window.attributes("-fullscreen", True)
+
         self.feed = fp.parse("https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss")
         self.refresh_rate = refresh_rate_minutes * 60 * 1000
         self.image_link = self.get_image_url_from_feed()
