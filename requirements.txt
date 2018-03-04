@@ -1,0 +1,4 @@
+colorthief
+feedparser
+requests
+Pillow
