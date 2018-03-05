@@ -52,11 +52,11 @@ class NasaIOTDApp:
 
         self.feed = fp.parse("https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss")
         self.refresh_rate = refresh_rate_minutes * 60 * 1000
-        self.image_link = self.get_image_url_from_feed()
+        self.current_url = ""
 
         self.image_raw = Image.open("default.jpg")
         self.image = ImageTk.PhotoImage(self.resize_image_for_frame(self.image_raw))
-        self.image_label = tk.Label(self.window, image=self.image)
+        self.image_label = tk.Label(self.window, image=self.image, background="black")
         self.image_label.image = self.image
         self.image_label.pack()
 
@@ -70,14 +70,15 @@ class NasaIOTDApp:
     def update_image(self, with_leds=True):
         self.feed = fp.parse("https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss")
 
-        if self.image_label == self.get_image_url_from_feed():
-            return
+        image_url = self.get_image_url_from_feed()
+        if self.current_url != image_url:
+            # We have a new image!
+            self.current_url = image_url
 
-        # We have a new image!
-        self.image_raw = requests.get(self.image_link).content
-        parsed_image = Image.open(BytesIO(self.image_raw))
+            self.image_raw = requests.get(self.current_url).content
+            parsed_image = Image.open(BytesIO(self.image_raw))
 
-        self.image = ImageTk.PhotoImage(self.resize_image_for_frame(parsed_image))
+            self.image = ImageTk.PhotoImage(self.resize_image_for_frame(parsed_image))
 
         self.image_label.configure(image=self.image)
         self.image_label.image = self.image
@@ -113,7 +114,11 @@ class NasaIOTDApp:
 
         request_url = "http://" + self.wemos_address + "/pattern?params=" + ';'.join(palette)
         print(request_url)
-        requests.get(request_url)
+
+        try:
+            requests.get(request_url, timeout=5)
+        except requests.ConnectTimeout:
+            print("Connection to wemos failed")
 
 
 if __name__ == '__main__':
