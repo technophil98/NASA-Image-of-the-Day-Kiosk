@@ -15,7 +15,6 @@ def center(toplevel):
     """
     toplevel.update_idletasks()
     w = toplevel.winfo_screenwidth()
-    h = toplevel.winfo_screenheight()
     size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
     x = w / 2 - size[0] / 2
     y = 0
@@ -80,12 +79,12 @@ class NasaIOTDApp:
 
             self.image = ImageTk.PhotoImage(self.resize_image_for_frame(parsed_image))
 
+            if with_leds:
+                self.update_leds()
+
         self.image_label.configure(image=self.image)
         self.image_label.image = self.image
         self.image_label.pack()
-
-        if with_leds:
-            self.update_leds()
 
         self.window.after(self.refresh_rate, self.update_image)
 
